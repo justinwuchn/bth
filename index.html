@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>給香妤寶寶的七夕禮物</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Microsoft JhengHei", sans-serif;
+      background: url("https://raw.githubusercontent.com/justinwuchn/bth/main/web/Melody.jpg") no-repeat center center fixed;
+      background-size: cover;
+      overflow-x: hidden;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-top: 40px;
+      color: #d6336c;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .days {
+      font-size: 2em;
+      margin: 20px 0;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 1px 1px 3px #d6336c;
+    }
+
+    .message-box {
+      background: rgba(255, 255, 255, 0.8);
+      color: #d6336c;
+      padding: 20px;
+      border-radius: 20px;
+      width: 80%;
+      max-width: 600px;
+      margin: 20px auto;
+      font-size: 1.2em;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
+      min-height: 80px;
+    }
+
+    video, .popup-video {
+      width: 300px;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 20px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
+    }
+
+    /* 照片輪播（正方形框） */
+    .slideshow {
+      margin: 30px auto;
+      width: 300px;
+      height: 300px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.4);
+    }
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 20px;
+    }
+
+    /* 飄落愛心 */
+    .heart {
+      position: fixed;
+      top: -10px;
+      color: #ff4d6d;
+      font-size: 20px;
+      animation: fall linear forwards;
+      pointer-events: none;
+      z-index: 999;
+    }
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* 彈窗 */
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff0f5;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      z-index: 1000;
+      text-align: center;
+    }
+
+    .popup button {
+      margin-top: 15px;
+      padding: 8px 15px;
+      border: none;
+      background: #ff4d6d;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .heart-btn {
+      margin-top: 25px;
+	  position: fixed;
+      bottom: 400px;
+      right: -10px;
+      width: 200px;
+      z-index: 999;
+      font-size: 2.5em;
+      cursor: pointer;
+      animation: pulse 1.2s infinite alternate;
+      color: #ff4d6d;
+    }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.2); } }
+
+    /* 背景音樂按鈕 & 音量滑桿 */
+    .music-control {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+    }
+    .music-btn {
+      font-size: 2em;
+      cursor: pointer;
+      color: #ff4d6d;
+    }
+    .volume-slider {
+      width: 100px;
+    }
+	.cartoon {
+      position: fixed;
+      bottom: 0px;
+      right: 0px;
+      width: 200px;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+  <h1>💖 𝑴𝙮 𝑩𝒂𝒃𝒆 💖</h1>
+
+  <div class="days" id="daysCount">我們已經在一起 0 天 0 小時 0 分鐘 0 秒</div>
+
+  <div class="message-box" id="typedMessage"></div>
+
+  <div class="slideshow" id="slideshow"></div>
+
+  <div class="heart-btn" onclick="showPopup()">❤️</div>
+
+  <div class="popup" id="popup">
+    <video id="popupVideo" class="popup-video" controls autoplay>
+      <source src="https://raw.githubusercontent.com/justinwuchn/bth/main/web/dance.mp4" type="video/mp4">
+      你的瀏覽器不支援影片播放
+    </video>
+    <br>
+    <button onclick="closePopup()">關閉</button>
+  </div>
+
+  <!-- 背景音樂 -->
+  <audio id="bgMusic" src="https://raw.githubusercontent.com/justinwuchn/bth/main/web/music.mp3" loop></audio>
+
+  <!-- 音樂按鈕 + 音量滑桿 -->
+  <div class="music-control">
+    <div class="music-btn" id="musicBtn" onclick="toggleMusic()">🔊</div>
+    <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01">
+  </div>
+  
+  <!-- 右下角圖片 -->
+  <img src="cartoon.png" alt="cartoon" class="cartoon">
+  <script>
+    // 交往紀念日
+    const startDate = new Date("2025-03-26T00:00:00");
+    function updateTimeTogether() {
+      const now = new Date();
+      const diff = now - startDate;
+      const days = Math.floor(diff / (1000*60*60*24));
+      const hours = Math.floor((diff / (1000*60*60)) % 24);
+      const minutes = Math.floor((diff / (1000*60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+      document.getElementById("daysCount").innerText =
+        `我們已經在一起 ${days} 天 ${hours} 小時 ${minutes} 分鐘 ${seconds} 秒`;
+    }
+    setInterval(updateTimeTogether, 1000);
+    updateTimeTogether();
+
+    // 飄落愛心
+    function createHeart() {
+      const heart = document.createElement("div");
+      heart.classList.add("heart");
+      heart.innerText = "❤";
+      heart.style.left = Math.random()*100+"vw";
+      heart.style.animationDuration = (2+Math.random()*3)+"s";
+      document.body.appendChild(heart);
+      setTimeout(()=>heart.remove(), 5000);
+    }
+    setInterval(createHeart, 500);
+
+    // 彈窗影片
+    function showPopup() { document.getElementById("popup").style.display="block"; }
+    function closePopup() {
+      const popup = document.getElementById("popup");
+      popup.style.display="none";
+      const video = document.getElementById("popupVideo");
+      video.pause(); video.currentTime=0;
+    }
+
+    // 照片輪播
+    const slideshowDiv = document.getElementById("slideshow");
+    const totalPhotos = 20;
+    for(let n=1;n<=totalPhotos;n++){
+      const img=document.createElement("img");
+      img.src=`https://raw.githubusercontent.com/justinwuchn/bth/main/web/${n}.jpg`;
+      img.classList.add("slide");
+      slideshowDiv.appendChild(img);
+    }
+    let idx=0;
+    const slides=document.querySelectorAll(".slide");
+    slides[0].style.display="block";
+    setInterval(()=>{
+      slides.forEach(s=>s.style.display="none");
+      idx=(idx+1)%slides.length;
+      slides[idx].style.display="block";
+    },3000);
+
+    // 打字機特效
+    const message = "寶寶 七夕情人節快樂！謝謝寶寶一直以來的陪伴，也謝謝寶寶一直那麼貼心的對我，在我難過的時候陪著我，無聊的時候陪我打遊戲搞笑。這是我小小的驚喜禮物，雖然沒有很華麗但希望寶寶喜歡。未來要一起過更多的節日，一起去更多地方玩。我愛你寶寶 ❤️";
+    let i=0;
+    function typeEffect() {
+      if(i<message.length){
+        document.getElementById("typedMessage").innerHTML += message.charAt(i);
+        i++; setTimeout(typeEffect,100);
+      }
+    }
+    typeEffect();
+
+    // 背景音樂控制
+    const bgMusic=document.getElementById("bgMusic");
+    const musicBtn=document.getElementById("musicBtn");
+    const volumeSlider=document.getElementById("volumeSlider");
+    let musicPlaying=false;
+
+    // 頁面載入自動播放音樂
+    window.addEventListener("load", () => {
+      bgMusic.volume = 0.5; // 初始音量50%
+      volumeSlider.value = bgMusic.volume;
+      bgMusic.play().then(()=>musicPlaying=true).catch(()=>{ musicBtn.innerText="🔇"; });
+    });
+
+    function toggleMusic(){
+      if(musicPlaying){ 
+        bgMusic.pause(); 
+        musicBtn.innerText="🔇"; 
+        musicPlaying=false; 
+      } else { 
+        bgMusic.play(); 
+        musicBtn.innerText="🔊"; 
+        musicPlaying=true; 
+      }
+    }
+
+    // 音量滑桿控制
+    volumeSlider.addEventListener("input", ()=>{
+      bgMusic.volume = volumeSlider.value;
+    });
+  </script>
+</body>
+</html>
